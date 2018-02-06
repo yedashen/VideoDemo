@@ -25,6 +25,10 @@ public class MainActivity extends AppCompatActivity {
 
     public void goTakeVideo(View view) {
         //看我activity的备注，记得给权限。。。
-        startActivity(new Intent(this,TakeVideoActivity.class));
+        startActivity(new Intent(this, TakeVideoActivity.class));
+    }
+
+    public void goVideoPlay(View view) {
+        startActivity(new Intent(this, VideoPlayActivity.class));
     }
 }

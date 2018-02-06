@@ -13,6 +13,12 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
+    <VideoView
+        android:id="@+id/vv"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
+
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -53,13 +59,30 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:onClick="clickBack"
+            android:text="返回" />
+
+        <Button
+            android:id="@+id/record_state_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:onClick="start"
             android:text="开始录制" />
 
         <Button
+            android:id="@+id/cancel_bt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:onClick="stop"
-            android:text="结束录制" />
+            android:onClick="cancel"
+            android:text="撤销"
+            android:visibility="gone" />
+
+        <Button
+            android:id="@+id/save_bt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="save"
+            android:text="保存"
+            android:visibility="gone" />
     </LinearLayout>
 </FrameLayout>
