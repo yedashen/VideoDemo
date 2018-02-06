@@ -19,5 +19,5 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:onClick="goVideoPlay"
-        android:text="播放视频(暂时没写)" />
+        android:text="播放视频" />
 </LinearLayout>
