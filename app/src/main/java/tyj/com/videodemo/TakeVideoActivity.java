@@ -28,8 +28,13 @@ import java.io.IOException;
  *         （2）本demo是用原生的代码写的，没有用ffmpeg等框架，所以要是把我这个demo看熟了，有什么问题好商量。
  *         （3）我没写权限申请，所以记得在一开始运行的时候就给予全部权限。
  *         （4）仿微信，当录制完毕之后默认就循环播放,如果是正在播放的时候onPause，再进入之后还是继续循环播放。
+ *         （5）在录制的时候,onPause的了，那么我就算自动保存了（暂时没设置录制时间过短问题）。
  *         功能：
  *         本demo支持在录屏的时候缩放，局部定焦，开启闪光灯等功能。
+ *         <p>
+ *         存在问题：
+ *         （1）在点击停止录制的时候，设置surfaceView隐藏然后VideoView显示的时候，会出现黑屏，是因为videoView prepare是需要时间的
+ *         这个时候是黑的。细心的人可以自己处理一下，我现在懒得处理。
  */
 
 public class TakeVideoActivity extends Activity {
@@ -51,6 +56,18 @@ public class TakeVideoActivity extends Activity {
     private Button mCancelBt;
     private Button mSaveBt;
     private VideoView mVideoView;
+    /**
+     * 为true代表是需要播放视频
+     * 是否需要播放视频：
+     * （1）在主动停止录制的时候，是需要播放视频的；
+     * （2）被迫停止(onPause)，再onResume的的时候需要播放视频
+     * （3）正在播放视频然后onPause，再onResume的时候需要播放视频
+     * （4）没有正在录制视频，没有正在播放视频，就是从没点过开始录制，那么这个时候onPause了，再
+     * onResume是不需要播放视频的
+     * （5）当录制视频之后，点击了撤销，是不需要播放视频的，这个时候如果onPause了然后再onResume了也是
+     * 不需要播放视频的
+     */
+    private boolean isNeedPlay = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -150,14 +167,18 @@ public class TakeVideoActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        //当界面重新可见的时候，看是否已经录制视频完毕了，完毕了就直接播放
-
-        if (isHasSurface) {
-            //如果不是第一次进入界面，只需要打开硬件即可，如果是第一进入，那么会在下面的callback里面进行初始化硬件
-            initCamera(mSurfaceHolder);
+        if (isNeedPlay) {
+            Log.e("TakeVideo", "是重新进入界面，需要重新播放视频");
+            mVideoView.setVideoURI(Uri.fromFile(new File("/storage/emulated/0/recordtest/cy.mp4")));
         } else {
-            //是第一次进入界面，进行第一次初始化，添加callback
-            mSurfaceHolder.addCallback(mSurfaceCallBack);
+            if (isHasSurface) {
+                Log.e("TakeVideo", "surfaceView没有被销毁");
+                //说明需要开启预览，不需要播放视频，这个时候只需要打开硬件即可
+                initCamera(mSurfaceHolder);
+            } else {
+                Log.e("TakeVideo", "surfaceView被销毁了或是第一次进入");
+                mSurfaceHolder.addCallback(mSurfaceCallBack);
+            }
         }
     }
 
@@ -176,11 +197,17 @@ public class TakeVideoActivity extends Activity {
     @Override
     protected void onPause() {
         super.onPause();
+        if (mRecorder != null) {
+            //现在是正在录制，停止录制
+            recordFinish();
+        }
+
         //当onPause的时候关闭预览界面并且关闭硬件
         CameraManager.getInstance().stopPreview();
         CameraManager.getInstance().closeDriver();
         if (mVideoView.isPlaying()) {
             mVideoView.pause();
+            isNeedPlay = true;
         }
     }
 
@@ -188,6 +215,24 @@ public class TakeVideoActivity extends Activity {
     protected void onDestroy() {
         super.onDestroy();
         mVideoView = null;
+    }
+
+    /**
+     * 主动停止了录制或者是onPause了被迫停止了录制，那么停止Recorder和修改一些View
+     */
+    private void recordFinish() {
+        mRecorder.stop();
+        mRecorder.reset();
+        mRecorder.release();
+        mRecorder = null;
+        Toast.makeText(this, "结束录制啦", Toast.LENGTH_SHORT).show();
+        mStateTv.setText("开始录制");
+        mStateTv.setVisibility(View.GONE);
+        mCancelBt.setVisibility(View.VISIBLE);
+        mSaveBt.setVisibility(View.VISIBLE);
+        mVideoView.setVisibility(View.VISIBLE);
+        mSurfaceView.setVisibility(View.GONE);
+        isNeedPlay = true;
     }
 
     /**
@@ -222,23 +267,11 @@ public class TakeVideoActivity extends Activity {
             Toast.makeText(this, "开始录制啦", Toast.LENGTH_SHORT).show();
             mStateTv.setText("结束录制");
         } else {
-            mRecorder.stop();
-            mRecorder.reset();
-            mRecorder.release();
-            mRecorder = null;
-            Toast.makeText(this, "结束录制啦", Toast.LENGTH_SHORT).show();
-            mStateTv.setText("开始录制");
-            mStateTv.setVisibility(View.GONE);
-            mCancelBt.setVisibility(View.VISIBLE);
-            mSaveBt.setVisibility(View.VISIBLE);
-
+            recordFinish();
             //结束录制的时候就不要预览了，然后点击撤销就继续预览，点击播放就播放视频
             CameraManager.getInstance().stopPreview();
             CameraManager.getInstance().closeDriver();
-
             //开始播放刚刚录制的视频
-            mVideoView.setVisibility(View.VISIBLE);
-            mSurfaceView.setVisibility(View.GONE);
             mVideoView.setVideoURI(Uri.fromFile(new File("/storage/emulated/0/recordtest/cy.mp4")));
         }
     }
@@ -260,6 +293,7 @@ public class TakeVideoActivity extends Activity {
         mSaveBt.setVisibility(View.GONE);
         mSurfaceView.setVisibility(View.VISIBLE);
         mVideoView.setVisibility(View.GONE);
+        isNeedPlay = false;
         //点击撤销之后就继续显示预览效果
         initCamera(mSurfaceHolder);
     }
@@ -303,20 +337,11 @@ public class TakeVideoActivity extends Activity {
     }
 
     /**
-     * 开启/关闭闪光灯
+     * 开启/关闭闪光灯,记得点击setFlashLight看我这个布尔值的说明
      *
      * @param view
      */
-    public void open(View view) {
-        CameraManager.getInstance().setFlashLight(true);
-    }
-
-    /**
-     * 开启/关闭闪光灯
-     *
-     * @param view
-     */
-    public void close(View view) {
+    public void flashLightControl(View view) {
         CameraManager.getInstance().setFlashLight(false);
     }
 }

@@ -27,14 +27,8 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:onClick="open"
-            android:text="灯光开" />
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="close"
-            android:text="灯光关" />
+            android:onClick="flashLightControl"
+            android:text="灯光开/关" />
 
         <Button
             android:layout_width="wrap_content"

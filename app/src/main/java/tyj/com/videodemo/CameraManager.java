@@ -91,11 +91,29 @@ public class CameraManager {
         }
     }
 
-    public void setFlashLight(boolean flag) {
+    /**
+     * 控制闪光灯的，在界面关闭的时候强制关闭
+     *
+     * @param forceClose 是否强制关闭,true代表强制关闭
+     */
+    public void setFlashLight(boolean forceClose) {
         if (mCamera != null) {
             try {
                 Camera.Parameters parameters = mCamera.getParameters();
-                parameters.set("flash-mode", flag ? "torch" : "off");
+                if (forceClose) {
+                    parameters.set("flash-mode", "off");
+                } else {
+                    String flashMode = parameters.getFlashMode();
+                    if (flashMode.equals("off")) {
+                        //说明原本就是关闭的，那么现在开启
+                        parameters.set("flash-mode", "torch");
+                    } else if (flashMode.equals("torch")) {
+                        parameters.set("flash-mode", "off");
+                    } else {
+                        Toast.makeText(mContext, "修改闪光灯状态失败", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                }
                 mCamera.setParameters(parameters);
             } catch (Exception e) {
                 Log.e("Camera", e.getMessage());
@@ -131,7 +149,7 @@ public class CameraManager {
 
     public void stopPreview() {
         if (mCamera != null && previewing) {
-            setFlashLight(false);
+            setFlashLight(true);
             mCamera.stopPreview();
             previewing = false;
         }
