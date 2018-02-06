@@ -1,6 +1,7 @@
-package tyj.com.videodemo;
+package tyj.com.videodemo.ui;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.hardware.Camera;
 import android.media.CamcorderProfile;
 import android.media.MediaPlayer;
@@ -19,6 +20,11 @@ import android.widget.VideoView;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.UUID;
+
+import tyj.com.videodemo.R;
+import tyj.com.videodemo.model.VideoEntity;
+import tyj.com.videodemo.util.camera.CameraManager;
 
 /**
  * @author ChenYe
@@ -34,7 +40,7 @@ import java.io.IOException;
  *         <p>
  *         存在问题：
  *         （1）在点击停止录制的时候，设置surfaceView隐藏然后VideoView显示的时候，会出现黑屏，是因为videoView prepare是需要时间的
- *         这个时候是黑的。细心的人可以自己处理一下，我现在懒得处理。
+ *         这个时候是黑的。细心的人可以自己处理一下，我现在懒得处理。可以直接在还没有prepared完毕的时候用一个progressDialog挡住
  */
 
 public class TakeVideoActivity extends Activity {
@@ -68,11 +74,13 @@ public class TakeVideoActivity extends Activity {
      * 不需要播放视频的
      */
     private boolean isNeedPlay = false;
+    private String mTempPath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_take_video);
+        mTempPath = "/storage/emulated/0/recordtest/" + UUID.randomUUID().toString() + ".mp4";
         findId();
         //初始化相机配置，在onResume的时候开始预览
         CameraManager.getInstance().initContext(this);
@@ -169,7 +177,7 @@ public class TakeVideoActivity extends Activity {
         super.onResume();
         if (isNeedPlay) {
             Log.e("TakeVideo", "是重新进入界面，需要重新播放视频");
-            mVideoView.setVideoURI(Uri.fromFile(new File("/storage/emulated/0/recordtest/cy.mp4")));
+            mVideoView.setVideoURI(Uri.fromFile(new File(mTempPath)));
         } else {
             if (isHasSurface) {
                 Log.e("TakeVideo", "surfaceView没有被销毁");
@@ -257,7 +265,7 @@ public class TakeVideoActivity extends Activity {
             mRecorder.setVideoEncodingBitRate(1 * 1024 * 1024);
             mRecorder.setOrientationHint(CameraManager.getInstance().isCamera0() ? 90 : 270);
             mRecorder.setPreviewDisplay(mSurfaceHolder.getSurface());
-            mRecorder.setOutputFile("/storage/emulated/0/recordtest/cy.mp4");
+            mRecorder.setOutputFile(mTempPath);
             try {
                 mRecorder.prepare();
             } catch (IOException e) {
@@ -272,7 +280,7 @@ public class TakeVideoActivity extends Activity {
             CameraManager.getInstance().stopPreview();
             CameraManager.getInstance().closeDriver();
             //开始播放刚刚录制的视频
-            mVideoView.setVideoURI(Uri.fromFile(new File("/storage/emulated/0/recordtest/cy.mp4")));
+            mVideoView.setVideoURI(Uri.fromFile(new File(mTempPath)));
         }
     }
 
@@ -283,7 +291,7 @@ public class TakeVideoActivity extends Activity {
      */
     public void cancel(View view) {
         //删除视频
-        File file = new File("/storage/emulated/0/recordtest/cy.mp4");
+        File file = new File(mTempPath);
         if (file.exists()) {
             file.delete();
         }
@@ -314,6 +322,9 @@ public class TakeVideoActivity extends Activity {
      */
     public void save(View view) {
         //在这里做一些保存的事情或者是继续开启预览，让用户可以继续录制视频。
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.putExtra("video", mTempPath);
+        setResult(RESULT_OK, intent);
         finish();
     }
 

@@ -8,7 +8,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <tyj.com.videodemo.CustomController
+    <tyj.com.videodemo.util.camera.CustomController
         android:id="@+id/cc"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

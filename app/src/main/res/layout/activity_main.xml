@@ -5,19 +5,17 @@
     android:orientation="vertical">
 
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="等我播放视频功能写好了，会把这个界面改好才能一个已录制的视频列表，然后尾部/顶部是录制视频按钮" />
-
-    <Button
+        android:id="@+id/add_tv"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:onClick="goTakeVideo"
-        android:text="跳转界面去录制视频" />
+        android:layout_height="60dp"
+        android:background="@drawable/bg_selector"
+        android:gravity="center"
+        android:text="去拍摄新的视频吧"
+        android:textColor="#000"
+        android:textSize="16sp" />
 
-    <Button
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rcv"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:onClick="goVideoPlay"
-        android:text="播放视频" />
+        android:layout_height="match_parent" />
 </LinearLayout>

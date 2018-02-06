@@ -1,4 +1,4 @@
-package tyj.com.videodemo;
+package tyj.com.videodemo.util.camera;
 
 import android.content.Context;
 import android.graphics.Point;

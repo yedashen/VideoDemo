@@ -1,9 +1,12 @@
-package tyj.com.videodemo;
+package tyj.com.videodemo.ui;
 
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.widget.VideoView;
+
+import tyj.com.videodemo.R;
+import tyj.com.videodemo.util.camera.CustomController;
 
 /**
  * @author ChenYe
@@ -13,7 +16,6 @@ import android.widget.VideoView;
 
 public class VideoPlayActivity extends Activity {
 
-    private String TEST_VIDEO_PATH = "/storage/emulated/0/recordtest/cy2.mp4";
     private CustomController mCc;
 
     @Override
@@ -22,7 +24,7 @@ public class VideoPlayActivity extends Activity {
         setContentView(R.layout.activity_video_play);
         mCc = (CustomController) findViewById(R.id.cc);
         VideoView mVv = (VideoView) findViewById(R.id.vv);
-        mCc.setVideoView(mVv, TEST_VIDEO_PATH, "测试视频名称", this);
+        mCc.setVideoView(mVv, getIntent().getStringExtra("path"), "测试视频名称", this);
         mCc.start();
     }
 

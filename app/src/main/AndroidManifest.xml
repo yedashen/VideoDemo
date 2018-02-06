@@ -18,7 +18,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+        <activity android:name=".ui.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -26,10 +26,10 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".TakeVideoActivity"
+            android:name=".ui.TakeVideoActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".VideoPlayActivity"
+            android:name=".ui.VideoPlayActivity"
             android:screenOrientation="portrait" />
     </application>
 

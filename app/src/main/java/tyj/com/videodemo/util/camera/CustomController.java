@@ -1,4 +1,4 @@
-package tyj.com.videodemo;
+package tyj.com.videodemo.util.camera;
 
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
@@ -18,12 +18,14 @@ import java.io.File;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import tyj.com.videodemo.R;
+
 /**
  * @author ChenYe
  *         (1)当Activity onPause再onResume的时候播放的处理。无论是播放中、暂停中、播放完在onPause的的时候都是
  *         pause(播放完的时候掉这个方法会不会有问题，还有语音那个也是，接的测试一下)，但是当onResume的时候，
  *         点击播放按钮到底是继续播放还是怎么样需要详细思考再进行处理.
- *         注意：
+ *         注意:
  *         （1）我测试发现当你调用视频暂停的时候,VideoView.isPlaying()返回值是false;
  *         <p>
  *         需求:
