@@ -11,7 +11,8 @@ import tyj.com.videodemo.util.camera.CustomController;
 /**
  * @author ChenYe
  *         created by on 2018/2/2 0002. 15:25
- *         暂时定义为竖屏播放
+ *         暂时定义为竖屏播放.
+ *         (1)未完成：切换上下、在播放界面显示所有视频列表并支持手动选择。
  **/
 
 public class VideoPlayActivity extends Activity {
