@@ -7,6 +7,7 @@ import android.content.Context;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
@@ -166,6 +167,16 @@ public class CustomController extends FrameLayout {
         checkPath();
         mVideoNameTv.setText("视频名称: " + videoName);
         this.mActivity = activity;
+        mVideoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mediaPlayer) {
+                cancelTask();
+                mSeekBar.setMax(mVideoView.getDuration());
+                mSeekBar.setProgress(mVideoView.getDuration());
+                mCurrentTimeTv.setText(timeFormat(mVideoView.getDuration()));
+                Log.e("CustomController", "播放完毕了");
+            }
+        });
     }
 
     public void start() {
@@ -191,6 +202,7 @@ public class CustomController extends FrameLayout {
                 mActivity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        Log.e("CustomController", "跳了一下");
                         mCurrentTimeTv.setText(timeFormat(mVideoView.getCurrentPosition()));
                         mSeekBar.setMax(mVideoView.getDuration());
                         mSeekBar.setProgress(mVideoView.getCurrentPosition());
