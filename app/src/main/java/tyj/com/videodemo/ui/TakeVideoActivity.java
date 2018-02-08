@@ -15,15 +15,17 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
 
 import tyj.com.videodemo.R;
-import tyj.com.videodemo.model.VideoEntity;
 import tyj.com.videodemo.util.camera.CameraManager;
 
 /**
@@ -75,6 +77,10 @@ public class TakeVideoActivity extends Activity {
      */
     private boolean isNeedPlay = false;
     private String mTempPath;
+    private TextView mRecordedTime;
+    private int mCountTime;
+    private Timer mCountTimer;
+    private TimerTask mCountTask;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -127,6 +133,7 @@ public class TakeVideoActivity extends Activity {
             public void onPrepared(MediaPlayer mp) {
                 Log.e("TakeVideo", "视频准备完毕");
                 mVideoView.start();
+                Log.e(TAG, "刚刚录制了:" + mVideoView.getDuration());
             }
         });
     }
@@ -138,6 +145,7 @@ public class TakeVideoActivity extends Activity {
         mCancelBt = (Button) findViewById(R.id.cancel_bt);
         mSaveBt = (Button) findViewById(R.id.save_bt);
         mVideoView = (VideoView) findViewById(R.id.vv);
+        mRecordedTime = (TextView) findViewById(R.id.recorded_time);
     }
 
 
@@ -187,6 +195,35 @@ public class TakeVideoActivity extends Activity {
                 Log.e("TakeVideo", "surfaceView被销毁了或是第一次进入");
                 mSurfaceHolder.addCallback(mSurfaceCallBack);
             }
+        }
+    }
+
+    private void countTime() {
+        mCountTime = 0;
+        mCountTimer = new Timer();
+        mCountTask = new TimerTask() {
+            @Override
+            public void run() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mCountTime++;
+                        if (mCountTime % 1000 == 0) {
+                            mRecordedTime.setText("已录制了" + mCountTime / 10 + "秒");
+                        }
+                    }
+                });
+            }
+        };
+        mCountTimer.schedule(mCountTask, 1000, 100);
+    }
+
+    private void stopCount() {
+        if (mCountTimer != null) {
+            mCountTimer.cancel();
+            mCountTask.cancel();
+            mCountTask = null;
+            mCountTimer = null;
         }
     }
 
@@ -241,6 +278,7 @@ public class TakeVideoActivity extends Activity {
         mVideoView.setVisibility(View.VISIBLE);
         mSurfaceView.setVisibility(View.GONE);
         isNeedPlay = true;
+        stopCount();
     }
 
     /**
@@ -272,6 +310,7 @@ public class TakeVideoActivity extends Activity {
                 e.printStackTrace();
             }
             mRecorder.start();
+            countTime();
             Toast.makeText(this, "开始录制啦", Toast.LENGTH_SHORT).show();
             mStateTv.setText("结束录制");
         } else {
@@ -302,6 +341,8 @@ public class TakeVideoActivity extends Activity {
         mSurfaceView.setVisibility(View.VISIBLE);
         mVideoView.setVisibility(View.GONE);
         isNeedPlay = false;
+        mCountTime = 0;
+        mRecordedTime.setText("已经录制了0秒");
         //点击撤销之后就继续显示预览效果
         initCamera(mSurfaceHolder);
     }
