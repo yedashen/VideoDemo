@@ -84,8 +84,10 @@ public class CustomController extends FrameLayout {
                 if (mVideoView != null) {
                     if (mVideoView.isPlaying()) {
                         mVideoView.pause();
+                        cancelTask();
                         mPlayIcon.setText("开始");
                     } else {
+                        beginTask();
                         mVideoView.start();
                         mPlayIcon.setText("暂停");
                     }
@@ -174,6 +176,7 @@ public class CustomController extends FrameLayout {
                 mSeekBar.setMax(mVideoView.getDuration());
                 mSeekBar.setProgress(mVideoView.getDuration());
                 mCurrentTimeTv.setText(timeFormat(mVideoView.getDuration()));
+                mPlayIcon.setText("开始");
                 Log.e("CustomController", "播放完毕了");
             }
         });
