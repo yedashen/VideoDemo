@@ -7,18 +7,30 @@ import java.io.Serializable;
  *         created by on 2018/2/6 0006. 15:13
  **/
 
-public class VideoEntity implements Serializable{
+public class VideoEntity implements Serializable {
     private String videoPath;
     private String videoLength;
     private String videoName;
+    //视频缩略图地址
+    private String videoThumbPath;
 
     public VideoEntity() {
     }
 
-    public VideoEntity(String videoPath, String videoLength, String videoName) {
+    public VideoEntity(String videoPath, String videoLength,
+                       String videoName, String videoThumbPath) {
         this.videoPath = videoPath;
         this.videoLength = videoLength;
         this.videoName = videoName;
+        this.videoThumbPath = videoThumbPath;
+    }
+
+    public String getVideoThumbPath() {
+        return videoThumbPath;
+    }
+
+    public void setVideoThumbPath(String videoThumbPath) {
+        this.videoThumbPath = videoThumbPath;
     }
 
     public String getVideoPath() {

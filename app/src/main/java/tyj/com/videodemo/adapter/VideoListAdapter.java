@@ -1,8 +1,6 @@
 package tyj.com.videodemo.adapter;
 
 import android.content.Context;
-import android.media.MediaPlayer;
-import android.provider.MediaStore;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,13 +10,13 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+
 import java.io.File;
-import java.io.FileInputStream;
 import java.util.List;
 
 import tyj.com.videodemo.R;
 import tyj.com.videodemo.model.VideoEntity;
-import tyj.com.videodemo.ui.MainActivity;
 
 /**
  * @author ChenYe
@@ -31,7 +29,6 @@ public class VideoListAdapter extends RecyclerView.Adapter<VideoListAdapter.Vide
     private Context mContext = null;
     private LayoutInflater mInflater = null;
     private OnItemClickListener mItemClickListener = null;
-    private MediaPlayer mPlayer = new MediaPlayer();
 
     public VideoListAdapter(Context context, List<VideoEntity> entities) {
         this.mContext = context;
@@ -73,20 +70,11 @@ public class VideoListAdapter extends RecyclerView.Adapter<VideoListAdapter.Vide
 
         public void updateView(final int position) {
             final VideoEntity entity = mVideoList.get(position);
-            mThumbIv.setImageBitmap(MainActivity.getVideoThumbnail(entity.getVideoPath(),
-                    60, 60, MediaStore.Images.Thumbnails.MICRO_KIND));
             mNameTv.setText("视频名称:" + entity.getVideoName());
-            mPlayer.reset();
-            try {
-                //这里我是暂时这样写，需要做优化
-                FileInputStream inputStream = new FileInputStream(new File(entity.getVideoPath()));
-                mPlayer.setDataSource(inputStream.getFD());
-                mPlayer.prepare();
-                mLengthTv.setText("视频长度:" + convert(mPlayer.getDuration()));
-                inputStream.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            mLengthTv.setText("视频长度:" + entity.getVideoLength());
+            Glide.with(mContext).load(entity.getVideoThumbPath())
+                    .placeholder(R.mipmap.ic_launcher)
+                    .into(mThumbIv);
             mDeleteTv.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -157,7 +145,6 @@ public class VideoListAdapter extends RecyclerView.Adapter<VideoListAdapter.Vide
     }
 
     public void release() {
-        mPlayer = null;
         mItemClickListener = null;
         mContext = null;
         mVideoList = null;

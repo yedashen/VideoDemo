@@ -58,7 +58,8 @@ public class MainActivity extends AppCompatActivity {
         File file = new File("/storage/emulated/0/recordtest");
         if (file.exists()) {
             for (File file1 : file.listFiles()) {
-                mVideos.add(new VideoEntity(file1.getPath(), "", file1.getName()));
+                //我这里没把视频缩略图放进去，其实应该形成数据库关联然后直接拿到的
+                mVideos.add(new VideoEntity(file1.getPath(), "", file1.getName(), ""));
             }
             mAdapter.setList(mVideos);
         }
@@ -109,8 +110,10 @@ public class MainActivity extends AppCompatActivity {
             //拿出刚刚添加的那条数据，增加到recyclerView里面去
             Log.e("MainActivity", "onActivityResult()");
             String path = data.getStringExtra("video");
+            String videoThumbPath = data.getStringExtra("videoThumbPath");
+            int videoLength = data.getIntExtra("videoLength", 0);
             File file = new File(path);
-            VideoEntity entity = new VideoEntity(file.getPath(), "", file.getName());
+            VideoEntity entity = new VideoEntity(file.getPath(), videoLength + "", file.getName(), videoThumbPath);
             mAdapter.addLast(entity);
             mAdapter.notifyItemChanged(mAdapter.getItemCount());
         }

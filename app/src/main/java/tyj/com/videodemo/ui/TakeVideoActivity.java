@@ -8,6 +8,7 @@ import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.v4.view.MotionEventCompat;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -26,6 +27,7 @@ import java.util.TimerTask;
 import java.util.UUID;
 
 import tyj.com.videodemo.R;
+import tyj.com.videodemo.util.bitmap.BitmapUtil;
 import tyj.com.videodemo.util.camera.CameraManager;
 
 /**
@@ -81,12 +83,19 @@ public class TakeVideoActivity extends Activity {
     private int mCountTime;
     private Timer mCountTimer;
     private TimerTask mCountTask;
+    /**
+     * 保存的缩略图的名字
+     */
+    private String mTempThumbName;
+    private String mTempThumbPath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_take_video);
-        mTempPath = "/storage/emulated/0/recordtest/" + UUID.randomUUID().toString() + ".mp4";
+        String name = UUID.randomUUID().toString();
+        mTempPath = "/storage/emulated/0/recordtest/" + name + ".mp4";
+        mTempThumbName = name;
         findId();
         //初始化相机配置，在onResume的时候开始预览
         CameraManager.getInstance().initContext(this);
@@ -199,6 +208,7 @@ public class TakeVideoActivity extends Activity {
     }
 
     private void countTime() {
+        stopCount();
         mCountTime = 0;
         mCountTimer = new Timer();
         mCountTask = new TimerTask() {
@@ -208,7 +218,7 @@ public class TakeVideoActivity extends Activity {
                     @Override
                     public void run() {
                         mCountTime++;
-                        if (mCountTime % 1000 == 0) {
+                        if (mCountTime % 10 == 0) {
                             mRecordedTime.setText("已录制了" + mCountTime / 10 + "秒");
                         }
                     }
@@ -279,6 +289,9 @@ public class TakeVideoActivity extends Activity {
         mSurfaceView.setVisibility(View.GONE);
         isNeedPlay = true;
         stopCount();
+        //生成缩略图
+        mTempThumbPath = BitmapUtil.saveBitmap(BitmapUtil.getVideoThumbnail(mTempPath, 90, 90
+                , MediaStore.Images.Thumbnails.MICRO_KIND), mTempThumbName);
     }
 
     /**
@@ -365,6 +378,8 @@ public class TakeVideoActivity extends Activity {
         //在这里做一些保存的事情或者是继续开启预览，让用户可以继续录制视频。
         Intent intent = new Intent(this, MainActivity.class);
         intent.putExtra("video", mTempPath);
+        intent.putExtra("videoThumbPath", mTempThumbPath);
+        intent.putExtra("videoLength", mCountTime/10);
         setResult(RESULT_OK, intent);
         finish();
     }
